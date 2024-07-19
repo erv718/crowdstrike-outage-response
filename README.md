@@ -27,18 +27,18 @@ zero IT involvement on-site.
 |---|---|
 | [CrowdStrike_File_Removal_Fix.iso](https://drive.google.com/file/d/1Dxe5-vVjL7jHR3eoQjV9MypZd4eS-Jy1/view?usp=sharing) | `01D94B0A4610F45461233BCDF5BA959BFD2E2F94043EF5195B9533EB8670D381` |
 
-Verify after downloading:
+Verify the hash after downloading:
 ```powershell
 Get-FileHash .\CrowdStrike_File_Removal_Fix.iso -Algorithm SHA256
 # Expected: 01D94B0A4610F45461233BCDF5BA959BFD2E2F94043EF5195B9533EB8670D381
 ```
 
-### Rufus (Required for Prepare-RemediationUsb.ps1)
+> The ISO is a WinPE environment with `Remove-CrowdStrikeFile.ps1` embedded.
+> It boots directly into the remediation script - no user interaction required.
 
-Download the **portable version** (`rufusp.exe`) from [rufus.ie/downloads](https://rufus.ie/downloads/)
+### Rufus (required for Prepare-RemediationUsb.ps1)
 
-> Use the portable version (`rufusp.exe`) - not the installer. It runs without elevation prompts
-> and is better suited for automated and scripted use.
+Download the portable version from **[rufus.ie/downloads](https://rufus.ie/downloads/)** - use `rufusp.exe`, not the installer.
 
 ## Usage
 
@@ -58,14 +58,12 @@ It will detect the OS drive, delete the bad file, and restart the machine.
 
 ## Requirements
 
-| Tool | Where |
-|---|---|
-| PowerShell 5.1+ | Built into Windows |
-| Rufus portable (`rufusp.exe`) | [rufus.ie/downloads](https://rufus.ie/downloads/) |
-| Admin rights | Required for both scripts |
-
-- `Prepare-RemediationUsb.ps1` - requires network access to download ISO, and Rufus
-- `Remove-CrowdStrikeFile.ps1` - runs from WinPE/USB, no network required
+| | Prepare-RemediationUsb.ps1 | Remove-CrowdStrikeFile.ps1 |
+|---|---|---|
+| Admin rights | Required | Required |
+| Network access | Required (ISO download) | Not required |
+| Rufus portable | Required - [rufus.ie/downloads](https://rufus.ie/downloads/) | Not required |
+| Boot environment | Normal Windows | WinPE or Safe Mode |
 
 ## How It Was Used
 
@@ -77,7 +75,9 @@ It will detect the OS drive, delete the bad file, and restart the machine.
 
 ## Blog Post
 
-Full write-up: [blog.soarsystems.cc](https://blog.soarsystems.cc)
+[The Day CrowdStrike Took Down the World - How We Responded](https://blog.soarsystems.cc)
+
+(Update this URL with the real post slug once published on Ghost.)
 
 ---
 *Built by [Soar Systems](https://soarsystems.cc) - July 2024*
