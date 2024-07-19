@@ -1,0 +1,17 @@
+# Word docs - contain sensitive info
+*.docx
+*.doc
+
+# ISOs - too large for git, hosted separately
+*.iso
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env
+config.local.ps1
