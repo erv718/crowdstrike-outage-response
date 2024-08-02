@@ -73,6 +73,75 @@ It will detect the OS drive, delete the bad file, and restart the machine.
 4. IT confirmed each location coming back online via RMM
 5. Full fleet recovered in under 8 hours
 
+## Alternative: PXE Network Boot
+
+If Windows Deployment Services (WDS) is already deployed in your environment,
+PXE boot is a faster and more scalable alternative to physical USB drives.
+
+PXE negotiation happens at the firmware level, before Windows attempts to load —
+meaning the CrowdStrike BSOD loop would not have blocked it. Machines configured
+for PXE-first boot would have pulled the WinPE image over the network and run
+the remediation automatically, with no physical media required.
+
+### Why we used USB instead
+
+Our 110+ locations each run on isolated local networks. PXE relies on DHCP
+broadcast (options 66/67), which is local-subnet only. Serving WinPE to remote
+sites requires either:
+- A WDS server at every location, or
+- DHCP helper/relay configured on every site router pointing to a central WDS server
+
+Neither was in place. USB could be manufactured and shipped same day. PXE could not.
+
+### WDS setup for future incidents
+
+If you want to be ready before the next incident, here is the minimum WDS configuration
+to serve a remediation WinPE image to remote sites:
+
+**1. Install WDS on a central Windows Server:**
+```powershell
+Install-WindowsFeature -Name WDS -IncludeManagementTools
+wdsutil /initialize-server /remInst:"C:\RemoteInstall"
+wdsutil /set-server /answerclients:all
+```
+
+**2. Add the WinPE boot image:**
+```powershell
+# Import your WinPE .wim file into WDS
+wdsutil /add-image /imagefile:"C:\WinPE\boot.wim" /imagetype:boot
+```
+
+**3. Configure DHCP options on each site router:**
+
+| DHCP Option | Value | Description |
+|---|---|---|
+| Option 66 | `<WDS server IP>` | TFTP server address |
+| Option 67 | `boot\x64\wdsnbp.com` | Boot file name |
+
+**4. Ensure machines have PXE enabled in UEFI:**
+- Boot order: Network first, local disk second
+- Secure Boot: May need to be configured to trust your WDS server certificate
+
+### Testing in a VM
+
+To simulate the CrowdStrike scenario and test the removal script without a physical USB:
+
+```powershell
+# Create a dummy bad file on any Windows VM
+New-Item -Path "C:\Windows\System32\drivers\CrowdStrike" -ItemType Directory -Force
+New-Item -Path "C:\Windows\System32\drivers\CrowdStrike\C-00000291-00000000-00000032.sys" -ItemType File
+
+# Run the removal script (comment out Restart-Computer while testing)
+.\Remove-CrowdStrikeFile.ps1
+
+# Verify the log
+Get-Content "C:\Temp\FileDeletionLog.txt"
+```
+
+For full USB boot testing: attach a USB drive via passthrough in VMware Workstation or
+VirtualBox (with Extensions Pack), run `Prepare-RemediationUsb.ps1` inside the VM, then
+boot a second test VM from the resulting USB.
+
 ## Blog Post
 
 [The Day CrowdStrike Took Down the World — How We Responded](https://blog.soarsystems.cc)
