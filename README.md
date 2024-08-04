@@ -38,7 +38,7 @@ Boot the affected workstation from the USB drive.
 
 Select the USB from the boot menu. The script runs automatically, deletes
 the bad file, and reboots the workstation. About 5 minutes per workstation.
-A log is written to C:\Temp\FileDeletionLog.txt on every machine.
+A log is written to C:\Temp\FileDeletionLog.txt on every workstation.
 
 ## Blog Post
 
