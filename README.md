@@ -42,7 +42,7 @@ A log is written to C:\Temp\FileDeletionLog.txt on every workstation.
 
 ## Blog Post
 
-https://blog.soarsystems.cc
+https://blog.soarsystems.cc/the-day-crowdstrike-took-down-the-world-how-we-responded/
 
 ---
 *Built by [Soar Systems](https://soarsystems.cc) — July 2024*
